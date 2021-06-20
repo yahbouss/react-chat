@@ -3,6 +3,8 @@ const app = express()
 const http = require('http')
 const socketio = require("socket.io")
 
+let users = []
+
 const server = http.createServer(app)
 const io = socketio(server,{
   cors:{
@@ -17,14 +19,16 @@ app.get('/', (req, res) => {
 })
 
 io.on('connection', (socket) => {
-  socket.on('join',({user})=>{
-    const message= `${user} just joined the room`
+  socket.on('join',({name})=>{
+    const message= `${name} just joined the room`
     console.log(message)
-    io.emit('message', {message})
+    users.push(name)
+    name = "admin"
+    io.emit('join', {name, message, users})
   })
-  socket.on('sendMessage',(message)=>{
-    io.emit('message',(message))
-    console.log(message)
+  socket.on('sendMessage',({name, message})=>{
+    socket.broadcast.emit('message',({name, message}))
+    console.log({name, message})
   })
   
 })

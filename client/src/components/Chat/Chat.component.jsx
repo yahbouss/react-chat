@@ -1,58 +1,67 @@
 import './Chat.scss'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import io from 'socket.io-client'
+import {useLocation} from 'react-router-dom'
+import queryString from 'query-string'
 
-import chatHead from '../../assets/head.svg'
 import attachImage from './assets/image.svg'
 import attachFile from './assets/attach.svg'
 import Send from './assets/send.svg'
 
-import {Reciever, Sender} from './Message'
+import {Reciever, Sender, UsersList} from './Message'
 
-const ENDPOINT = "http://localhost:5000"
+const ENDPOINT = "http://192.168.1.14:5000"
 let socket
 
-const user= 'yahia'
+let i = 0
 
 function isEmptyOrSpaces(str){
     return str === null || str.match(/^ *$/) !== null;
 }
 
 const Chat = () => {
+    const location = useLocation()
+
+    const [name, setName] = useState('')
     const [message, setMessage] = useState('')
     const [messages, setMessages] = useState([])
+    const [usersRoom, setUsersRoom] = useState([])
 
     useEffect(() => {
+        setName(queryString.parse(location.search).name)
         socket = io(ENDPOINT)
-        socket.emit('join',{user},(error)=>error?console.log(error):console.log('connected'))
-    }, [])
+        socket.on('connection',(socket)=>{
+            socket.emit('join',{name},(error)=>error?console.error(error):console.log('connected'))
+            socket.on('join',({message, name, users})=>{
+                console.log(message)
+                setMessages([...messages, {name, message}])
+                setUsersRoom([...usersRoom, users])
+                
+            })
+        })
+    },[messages, location.search, name, usersRoom])
 
     useEffect(() => {
-        socket.on('message',({message,type})=> setMessages([...messages, {type, message}]))
+        socket.on('message',({message,name})=> {
+            setMessages([...messages, {name, message}])
+        })
     })
 
     const messageSend = () =>{
         if (!isEmptyOrSpaces(message)){
-            setMessages([...messages, {type:0, message}])
-            socket.emit('sendMessage', {type:3, message})
+            socket.emit('sendMessage', {name, message})
             setMessage('')}
+
     }
 
     return (
         <div className='chat'>
-            <div className="chat__users">
-                <div className="chat__users-user">
-                    <div className="chat__users-user-circle">
-                        <img src={chatHead} alt='.' />
-                    </div>
-                    <h2>User</h2>
-                </div>
-            </div>
+            <UsersList usersList={usersRoom}/>
             <div className="chat__container">
 
                 <div className="chat__messages">
                     {messages.map(mes=>{
-                        return( mes.type===0 ? <Sender name='yahia' message={mes.message}/> : <Reciever name='sender' message={mes.message}/> )
+                        return( mes.name===name ? <Sender key={i++} name={name} message={mes.message}/> : <Reciever key={i++} name={mes.name} message={mes.message}/> )
                     })}
                 </div>
                 <div className="chat__input">

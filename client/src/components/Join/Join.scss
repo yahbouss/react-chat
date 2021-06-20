@@ -1,0 +1,52 @@
+@import '../../assets/styles/variables.scss';
+$color__textfield : #f3f2f2;
+
+.box{
+    background-color: $color_box;
+    height: 300px;
+    width: 30%;
+    border: 0px;
+    border-radius: 19px;
+    margin: 5% auto;
+    &__title{
+        padding-top: 20px;
+        text-align: center;
+        color: $color_bg;
+        color: $color__textfield;
+    }
+    &__name{
+        padding-top: 30px;
+        margin-left: 20px;
+        &-title{
+            font-size: 15px;
+            padding: 0;
+            margin: 0;
+            padding-left: 13px;
+            padding-bottom: 10px;
+            color: $color__textfield;
+        }
+        &-input{
+            border: 0px;
+            background-color: $color__textfield;
+            border-radius: 19px;
+            width: 95%;
+            height: 40px;
+            padding: 13px;
+            outline: none;
+            
+        }
+    }
+    &__button{
+        display: flex;
+    justify-content: center;
+    align-items: center;
+        background-color: $color__textfield;
+        border: 0;
+        filter: drop-shadow(0 0 0.25rem #707070);
+        font-size: 20px;
+        margin: auto;
+        margin-top: 30px;
+        border-radius: 19px;
+        padding: 10px 20px;
+    }
+}
